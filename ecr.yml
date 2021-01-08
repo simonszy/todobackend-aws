@@ -7,3 +7,36 @@ Resources:
     Type: AWS::ECR::Repository
     Properties:
       RepositoryName: docker-in-aws/todobackend
+      RepositoryPolicyText:
+        Version: '2008-10-17'
+        Statement:
+          - Sid: RemoteAccessAccount
+            Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::017407980814:root
+              Service: codebuild.amazonaws.com 
+            Action:
+              - ecr:GetDownloadUrlForLayer
+              - ecr:BatchGetImage
+              - ecr:BatchCheckLayerAvailability
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+         {
+            "rules": [
+              {
+                "rulePriority": 10,
+                "description": "Untagged images",
+                "selection": {
+                  "tagStatus": "untagged",
+                  "countType": "sinceImagePushed",
+                  "countUnit": "days",
+                  "countNumber": 7
+                },
+                "action": {
+                  "type": "expire"
+                }
+              }
+            ]
+          }
+
+
